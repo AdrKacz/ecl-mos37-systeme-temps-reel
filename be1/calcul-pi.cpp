@@ -35,7 +35,7 @@ int main() {
     return 0;
 }
 /*
-$ g++  -std=c++17 be1/calcul-pi.cpp -lpthread
+$ g++ -std=c++17 be1/calcul-pi.cpp -lpthread
 $ ./a.out
 Thread No 3 lancé
 Thread No 4 lancé
