@@ -19,6 +19,31 @@ D'où une approximation de `PI = 4 * n / N`.
 
 # Méthode de tri (merge sort, quick sort)
 
+On implemente **merge sort** avec une parralélisation symétrique sur l'arbre de découpage du tableau, comme le montre le pseudo-code suivant:
+
+```c++
+void mergeSort(int array[], int const begin, int const end)
+{
+    if (can_create_two_thread)
+    {
+        new thread down -> mergeSort(bottom half of array)
+        new thread up -> mergeSort(up half of array)
+
+        wait_for_threads()
+    } else if (can_create_one_tread)
+    {
+        new thread down -> mergeSort(bottom half of array)
+        mergeSort(up half of array)
+
+        wait_for_thread()
+    } else
+    {
+        mergeSort(bottom half of array)
+        mergeSort(up half of array)
+    }
+}
+```
+
 # Gestionnaire de billes
 
 ## Énoncé
