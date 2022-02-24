@@ -4,7 +4,7 @@
 #include <string>
 
 #define TABLE_SIZE 30
-#define NB_THREADS 1
+#define NB_THREADS 1 // + 1 to count for the main thread
 
 std::mutex mutex;
 
@@ -112,11 +112,8 @@ int main()
     
 	int arr_size = TABLE_SIZE;
 
-
 	std::cout << "Given array is \n";
 	printArray(arr, arr_size);
-
-	std::thread threads[NB_THREADS];
 
     mergeSort(arr, 0, arr_size - 1);
     
@@ -126,7 +123,7 @@ int main()
 }
 
 /*
-$ g++ -std=c++17 others/merge.cpp && ./a.out
+$ g++ -std=c++17 merge/merge.cpp && ./a.out
 Given array is 
 7 49 73 58 30 72 44 78 23 9 40 65 92 42 87 3 27 29 40 12 3 69 9 57 60 33 99 78 16 35 
 Sorted array is 
