@@ -29,6 +29,13 @@ Soit `n` le nombre de point dans le cercle, `N` le nombre de point tiré. Nous a
 
 D'où une approximation de `PI = 4 * n / N`.
 
+## Résultat 
+
+```sh
+>> g++ -std=gnu++17 calcul-pi/calcul-pi-circle.cpp && ./a.out 10000 && rm a.out 
+3.1496
+```
+
 # Méthode de tri (merge sort, quick sort)
 
 ```sh
@@ -60,7 +67,18 @@ void mergeSort(int array[], int const begin, int const end)
         mergeSort(bottom half of array)
         mergeSort(up half of array)
     }
+    merge()
 }
+```
+
+## Résultat
+
+```sh
+>> g++ -std=gnu++17 merge/merge.cpp && ./a.out && rm a.out
+Given array is 
+7 49 73 58 30 72 44 78 23 9 40 65 92 42 87 3 27 29 40 12 3 69 9 57 60 33 99 78 16 35 
+Sorted array is 
+3 3 7 9 9 12 16 23 27 29 30 33 35 40 40 42 44 49 57 58 60 65 69 72 73 78 78 87 92 99 % 
 ```
 
 # Gestionnaire de billes
@@ -86,12 +104,50 @@ void t(int i) {
         ask_billes(needs[i]) // waits until it gets billes
         use_billes()
         return_billes()
-        wait_time() // sleep (in needed)
+        wait_time() // sleep (if needed, 1 seconds in the code but can be changed) 
     }
 }
 ```
 
 Un *thread* controlleur vérifie que `0 <= nb_billes <= NB_BILLES`, si la condition n'est pas respecté le programme s'arrête.
+
+## Résultat
+
+```sh
+>> g++ -std=gnu++17 billes/billes.cpp && ./a.out && rm a.out
+Create 4 workers.
+Worker 0 initialised.
+Worker 1 initialised.
+Worker 2 initialised.
+Remaining billes:        (8) ........
+Worker 1 received 2 billes
+Remaining billes:        (9) .........
+Worker 0 received 1 billes
+Remaining billes:        (6) ......
+Worker 2 received 3 billes
+Worker 3 initialised.
+Remaining billes:        (3) ...
+Worker 0:                (1) .
+Worker 1:                (2) ..
+Worker 2:                (3) ...
+...
+Worker 1 returned 2 billes
+Remaining billes:        (4) ....
+Worker 0:                (1) .
+Worker 3:                (4) ....
+Worker 3 returned 4 billes
+Remaining billes:        (8) ........
+Worker 0:                (1) .
+Worker 3:                (4) ....
+Worker 0 returned 1 billes
+Remaining billes:        (9) .........
+Worker 2 received 3 billes
+Remaining billes:        (6) ......
+Worker 2:                (3) ...
+Worker 2 returned 3 billes
+Work done!
+Remaining billes:        (9) .........
+```
 
 # Jeu de la vie
 
@@ -127,3 +183,46 @@ Role | Command
 Move to (x,y) | `\033<x>;<y>f`
 Erase screen | `\x1B[2J\x1B[H`
 
+# Utilité du `mutex`
+
+```sh
+# macOS
+g++ -std=gnu++17 race-condition/race-condition.cpp && ./a.out && rm a.out
+```
+
+Pour vérifier qu'il est important de bloquer la mémoire en écriture lors d'un programme à plusieurs processus, on éxécute un code ne le faisant pas et on mesure l'erreur.
+
+## Méthode
+
+```c++
+var = 0
+for (int i = 0; i < NUM_THREADS; i++)
+{
+    std::thread([](){
+    for(int j = 0; j < NUM_ITERATIONS; j++)
+    {
+        var++;
+    }
+    });
+}
+```
+
+Le programme est siple, on incrémente une variable `NUM_ITERATIONS * NUM_THREADS` fois. On s'attend donc que le résulat soit `NUM_ITERATIONS * NUM_THREADS`. On mesure ensuite la différence au résultat attendu.
+
+## Résultat
+
+```sh
+>> g++ -std=gnu++17 race-condition/race-condition.cpp && ./a.out && rm a.out
+===== Sans mutex
+Nombre de Race Correct: 35 (sur 1000)
+Pourcentage de Race Correct: 3.5%
+Erreur normalisée (sur 1000 Race): 29.5879%
+--- Temps: 140.223ms
+===== Avec mutex
+Nombre de Race Correct: 1000 (sur 1000)
+Pourcentage de Race Correct: 100%
+Erreur normalisée (sur 1000 Race): 0%
+--- Temps: 1786.88ms
+```
+
+On remarque bien que lorsque la variable est incrémenté *au-même moment*, cela pose problème, elle n'est incrémenté qu'une fois au lieu de plusieurs. On force alors l'écriture séquentielle en mémoire, cela nous permet d'obtenir le bon résultat `100%` du temps, mais, comme prévu, ralentis le temps de calcul.

@@ -4,7 +4,7 @@
 #include <string>
 
 #define TABLE_SIZE 30
-#define NB_THREADS 1 // + 1 to count for the main thread
+#define NB_THREADS 4 // + 1 to count for the main thread
 
 std::mutex mutex;
 
@@ -69,11 +69,11 @@ void mergeSort(int array[], int const begin, int const end)
     mutex.lock();
     int remaining_thread = NB_THREADS - active_threads;
     mutex.unlock();
-    if (remaining_thread == 2)
+    if (remaining_thread >= 2)
     {
         mutex.lock(); active_threads += 2; mutex.unlock();
         std::thread thread_down = std::thread(mergeSort, array, begin, mid);
-        std::thread thread_up = std::thread(mergeSort, array, begin, mid);
+        std::thread thread_up = std::thread(mergeSort, array, mid + 1, end);
 
         thread_down.join();
         mutex.lock(); active_threads -= 1; mutex.unlock();
@@ -81,7 +81,7 @@ void mergeSort(int array[], int const begin, int const end)
         mutex.lock(); active_threads -= 1; mutex.unlock();
     } else if (remaining_thread == 1)
     {
-        mutex.lock(); active_threads += 2; mutex.unlock();
+        mutex.lock(); active_threads += 1; mutex.unlock();
         std::thread thread_down = std::thread(mergeSort, array, begin, mid);
         mergeSort(array, mid + 1, end);
 
@@ -91,8 +91,8 @@ void mergeSort(int array[], int const begin, int const end)
     {
         mergeSort(array, begin, mid);
         mergeSort(array, mid + 1, end);
-        merge(array, begin, mid, end);
     }
+	merge(array, begin, mid, end);
 	
 }
 
@@ -127,5 +127,5 @@ $ g++ -std=c++17 merge/merge.cpp && ./a.out
 Given array is 
 7 49 73 58 30 72 44 78 23 9 40 65 92 42 87 3 27 29 40 12 3 69 9 57 60 33 99 78 16 35 
 Sorted array is 
-7 9 23 30 40 42 44 49 58 65 72 73 78 87 92 3 3 9 12 16 27 29 33 35 40 57 60 69 78 99 
+3 3 7 9 9 12 16 23 27 29 30 33 35 40 40 42 44 49 57 58 60 65 69 72 73 78 78 87 92 99
 */
